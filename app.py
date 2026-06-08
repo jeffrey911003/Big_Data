@@ -18,12 +18,12 @@ app.add_middleware(
 # 1. 在伺服器啟動時，載入模型與最新特徵資料庫（純淨真實數據）
 # ============================================================
 print("正在載入冠軍模型與真實特徵庫...")
-model = joblib.load('best_recommend_model_rf.pkl')
+model = joblib.load('best_recommend_model_hgb.pkl')
 features_list = joblib.load('model_features_2.pkl')
 
 # 載入特徵資料庫，並將 pid 設為索引（此處 index 將完美保持 Page_XXXXXXXX 格式）
 feature_store = pd.read_csv('feature_store_2.csv', index_col=0)
-print("載入完成！伺服器已準備就緒，推薦結果將 100% 由隨機森林模型自動分析（保留 Page_ 前綴）。")
+print("載入完成！伺服器已準備就緒，推薦結果將 100% 由直方圖梯度提升模型自動分析（保留 Page_ 前綴）。")
 
 
 # ============================================================
@@ -39,14 +39,14 @@ def read_root():
 def get_recommendations(top_k: int = 5):
     """
     【AI 自動化推薦核心】
-    直接讀取去識別化特徵送入隨機森林模型，即時分析出分數最高的網頁。
+    直接讀取去識別化特徵送入直方圖梯度提升模型，即時分析出分數最高的網頁。
     這裡傳出去的 page_id 會原汁原味包含 Page_ 前綴。
     """
     try:
         # 1. 讀取所有候選網頁特徵，確保特徵順序與訓練時一致
         candidate_features = feature_store[features_list]
         
-        # 2. 將特徵送入模型進行預測 (取得分類為 1 的隨機森林真實預測機率)
+        # 2. 將特徵送入模型進行預測 (取得分類為 1 的直方圖梯度提升真實預測機率)
         scores = model.predict_proba(candidate_features)[:, 1]
         
         # 3. 將分數與原本的網頁 ID (此處已是 Page_XXXXXXXX) 結合

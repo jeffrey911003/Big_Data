@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 // ============================================================
 // 【靈魂包裝區】模型真實完整 ID ➔ 前端商業中文名詞對照表
-// 💡 這裡的 Key 完全對齊你隨機森林模型跑出來的真實 Page_ID 字串！
+// 💡 這裡的 Key 完全對齊你直方圖梯度提升模型 (HGB) 跑出來的真實 Page_ID 字串！
 // ============================================================
 const pageContentMapper = {
   "Page_4712886852": { // 冠軍模型算出來的第一名！
@@ -60,11 +60,11 @@ function App() {
     setProcessingStep('正在上傳客戶去識別化流量日誌檔案...');
     
     setTimeout(() => {
-      setProcessingStep('日誌串流成功：隨機森林 (RandomForest) 冠軍模型即時預估分數中...');
+      setProcessingStep('日誌串流成功：直方圖梯度提升模型 (HistGradientBoosting) 冠軍模型即時預估分數中...');
     }, 1200);
 
     try {
-      // 2. 真正連線到你的 FastAPI 後端獲取模型預估的前 3 名
+      // 2. 🎯【精準改動】真正連線到你本地啟動在 Port 8002 的後端 API
       const response = await fetch('http://127.0.0.1:8002/recommend?top_k=3');
       const apiResult = await response.json();
 
@@ -72,11 +72,11 @@ function App() {
         
         // 3. 將後端傳回的原始 ID（Page_XXXXXXXX）與分數，動態結合前端對照表
         const formattedList = apiResult.data.map((item, index) => {
-          const currentId = String(item.page_id); // 這裡拿到的就是 "Page_4712886852" 等原始 ID
+          const currentId = String(item.page_id); // 這裡拿到的就是 "Page_XXXXXXXX" 原始 ID
           
           // 如果模型算出了別的 ID（在 Mapper 找不到），啟動自動防錯包裝機制
           const matchedContent = pageContentMapper[currentId] || {
-            title: `隨機森林精選網頁 ${currentId} (去識別化數據模型自動推薦)`,
+            title: `HistGradientBoosting 精選網頁 ${currentId} (去識別化數據模型自動推薦)`,
             tag: "AI 推薦網頁",
             clicks: "動態統計中",
             duration: "動態統計中"
@@ -84,8 +84,8 @@ function App() {
 
           return {
             rank: index + 1,
-            pageId: currentId,             // 【100% 真實】直接來自隨機森林模型
-            score: item.confidence_score,  // 【100% 真實】直接來自隨機森林模型 (例如: 0.705)
+            pageId: currentId,             // 【100% 真實】直接來自 HistGradientBoosting 模型
+            score: item.confidence_score,  // 【100% 真實】直接來自 HistGradientBoosting 模型 (例如: 0.705)
             title: matchedContent.title,   // 〖命名包裝〗
             tag: matchedContent.tag,       // 〖命名包裝〗
             clickSum: matchedContent.clicks,
@@ -95,7 +95,7 @@ function App() {
 
         setRecommendationList(formattedList);
       } else {
-        alert("後端隨機森林模型計算失敗: " + apiResult.message);
+        alert("後端直方圖梯度提升模型計算失敗: " + apiResult.message);
       }
     } catch (error) {
       alert("無法連線到推薦系統後端！請確認您的 FastAPI 是否已在 Port 8002 正常啟動。");
@@ -112,9 +112,9 @@ function App() {
       <div style={{ borderBottom: '2px solid #0056b3', paddingBottom: '15px', marginBottom: '30px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h1 style={{ margin: 0, fontSize: '26px', color: '#0056b3', fontWeight: 'bold' }}>網頁推薦系統 ➔ 數據分析後台</h1>
-          <span style={{ backgroundColor: '#e8f5e9', color: '#2b8a3e', padding: '4px 10px', borderRadius: '15px', fontSize: '12px', fontWeight: 'bold' }}>● Live-backend</span>
+          <span style={{ backgroundColor: '#e8f5e9', color: '#2b8a3e', padding: '4px 10px', borderRadius: '15px', fontSize: '12px', fontWeight: 'bold' }}>● Local-backend:8002</span>
         </div>
-        <p style={{ margin: '8px 0 0 0', color: '#666', fontSize: '14px' }}>後端基於隨機森林(RandomForest)真實預測機率 </p>
+        <p style={{ margin: '8px 0 0 0', color: '#666', fontSize: '14px' }}>後端基於直方圖梯度提升模型 (HistGradientBoosting) 真實預測機率 </p>
       </div>
 
       {/* 第一步：導入客戶紀錄 */}
@@ -164,9 +164,9 @@ function App() {
         <div style={{ animation: 'fadeIn 0.5s ease' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
             <h3 style={{ margin: 0, color: '#111', fontSize: '18px' }}>
-              隨機森林分析結果：成功產出 Top-{recommendationList.length} 最佳推薦網頁
+              HistGradientBoosting 分析結果：成功產出 Top-{recommendationList.length} 最佳推薦網頁
             </h3>
-            <span style={{ fontSize: '13px', color: '#2b8a3e', fontWeight: 'bold' }}>狀態：隨機森林預估完成</span>
+            <span style={{ fontSize: '13px', color: '#2b8a3e', fontWeight: 'bold' }}>狀態：直方圖梯度提升模型預估完成</span>
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
@@ -196,7 +196,7 @@ function App() {
                   </p>
                 </div>
 
-                {/* 預測分數 (完全連線自後端隨機森林模型) */}
+                {/* 預測分數 (完全連線自後端直方圖梯度提升模型) */}
                 <div style={{ textAlign: 'center', minWidth: '100px', borderLeft: '1px solid #eee', paddingLeft: '15px' }}>
                   <span style={{ fontSize: '11px', color: '#777', display: 'block', marginBottom: '4px' }}>模型推薦指數</span>
                   <div style={{ fontSize: '24px', fontWeight: 'bold', color: item.score > 0.5 ? '#2b8a3e' : '#e65100' }}>
