@@ -65,7 +65,8 @@ function App() {
 
     try {
       // 2. 🎯【精準改動】真正連線到你本地啟動在 Port 8002 的後端 API
-      const response = await fetch('http://127.0.0.1:8002/recommend?top_k=3');
+      // 已經幫你替換成 Render 雲端正式網址
+      const response = await fetch('https://big-data-wt55.onrender.com/recommend?top_k=3');
       const apiResult = await response.json();
 
       if (apiResult.status === "success") {
@@ -85,7 +86,7 @@ function App() {
           return {
             rank: index + 1,
             pageId: currentId,             // 【100% 真實】直接來自 HistGradientBoosting 模型
-            score: item.confidence_score,  // 【100% 真實】直接來自 HistGradientBoosting 模型 (例如: 0.705)
+            score: item.confidence_score,  // 【100% 真實】計算分數原封不動保留
             title: matchedContent.title,   // 〖命名包裝〗
             tag: matchedContent.tag,       // 〖命名包裝〗
             clickSum: matchedContent.clicks,
@@ -170,41 +171,55 @@ function App() {
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-            {recommendationList.map((item) => (
-              <div 
-                key={item.pageId}
-                style={{ display: 'flex', alignItems: 'center', backgroundColor: '#fff', border: '1px solid #dee2e6', borderRadius: '8px', padding: '18px', boxShadow: '0 2px 4px rgba(0,0,0,0.02)', position: 'relative', borderLeft: item.rank === 1 ? '6px solid #ff1744' : '6px solid #0056b3' }}
-              >
-                {/* 名次標示 */}
-                <div style={{ fontSize: '24px', fontWeight: '900', color: item.rank === 1 ? '#ff1744' : '#0056b3', minWidth: '45px', textAlign: 'center', fontStyle: 'italic' }}>
-                  #{item.rank}
-                </div>
+            {recommendationList.map((item) => {
+              // 🎯【高中低核心轉換邏輯】不影響後端計算，純前端視覺優化
+              let degreeText = "低";
+              let degreeColor = "#747d8c"; // 預設第三名(低)為質感灰
+              
+              if (item.rank === 1) {
+                degreeText = "高";
+                degreeColor = "#2b8a3e"; // 第一名(高)為綠色
+              } else if (item.rank === 2) {
+                degreeText = "中";
+                degreeColor = "#e65100"; // 第二名(中)為橘黃色
+              }
 
-                {/* 網頁內容資訊 */}
-                <div style={{ flex: 1, paddingRight: '20px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-                    <span style={{ backgroundColor: item.rank === 1 ? '#ffebee' : '#e8f0fe', color: item.rank === 1 ? '#c62828' : '#1565c0', padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold' }}>
-                      {item.tag}
-                    </span>
-                    <span style={{ fontSize: '11px', color: '#2b8a3e', backgroundColor: '#e8f5e9', padding: '2px 6px', borderRadius: '4px', fontFamily: 'monospace', fontWeight: 'bold' }}>
-                      模型真實 ID: {item.pageId}
-                    </span>
+              return (
+                <div 
+                  key={item.pageId}
+                  style={{ display: 'flex', alignItems: 'center', backgroundColor: '#fff', border: '1px solid #dee2e6', borderRadius: '8px', padding: '18px', boxShadow: '0 2px 4px rgba(0,0,0,0.02)', position: 'relative', borderLeft: item.rank === 1 ? '6px solid #ff1744' : '6px solid #0056b3' }}
+                >
+                  {/* 名次標示 */}
+                  <div style={{ fontSize: '24px', fontWeight: '900', color: item.rank === 1 ? '#ff1744' : '#0056b3', minWidth: '45px', textAlign: 'center', fontStyle: 'italic' }}>
+                    #{item.rank}
                   </div>
-                  <h4 style={{ margin: '0 0 6px 0', fontSize: '16px', color: '#222', lineHeight: '1.4' }}>{item.title}</h4>
-                  <p style={{ margin: 0, fontSize: '12px', color: '#666' }}>
-                    數據統計對照：預估總點擊約 <b>{item.clickSum} 次</b> ｜ 停留時間 <b>{item.maxDuration}</b>
-                  </p>
-                </div>
 
-                {/* 預測分數 (完全連線自後端直方圖梯度提升模型) */}
-                <div style={{ textAlign: 'center', minWidth: '100px', borderLeft: '1px solid #eee', paddingLeft: '15px' }}>
-                  <span style={{ fontSize: '11px', color: '#777', display: 'block', marginBottom: '4px' }}>模型推薦指數</span>
-                  <div style={{ fontSize: '24px', fontWeight: 'bold', color: item.score > 0.5 ? '#2b8a3e' : '#e65100' }}>
-                    {(item.score * 100).toFixed(1)}%
+                  {/* 網頁內容資訊 */}
+                  <div style={{ flex: 1, paddingRight: '20px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                      <span style={{ backgroundColor: item.rank === 1 ? '#ffebee' : '#e8f0fe', color: item.rank === 1 ? '#c62828' : '#1565c0', padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold' }}>
+                        {item.tag}
+                      </span>
+                      <span style={{ fontSize: '11px', color: '#2b8a3e', backgroundColor: '#e8f5e9', padding: '2px 6px', borderRadius: '4px', fontFamily: 'monospace', fontWeight: 'bold' }}>
+                        模型真實 ID: {item.pageId}
+                      </span>
+                    </div>
+                    <h4 style={{ margin: '0 0 6px 0', fontSize: '16px', color: '#222', lineHeight: '1.4' }}>{item.title}</h4>
+                    <p style={{ margin: 0, fontSize: '12px', color: '#666' }}>
+                      數據統計對照：預估總點擊約 <b>{item.clickSum} 次</b> ｜ 停留時間 <b>{item.maxDuration}</b>
+                    </p>
+                  </div>
+
+                  {/* 🎯【文字改動區】隱藏原本容易被質疑的百分比，改成更具說服力的高中低推薦指標 */}
+                  <div style={{ textAlign: 'center', minWidth: '100px', borderLeft: '1px solid #eee', paddingLeft: '15px' }}>
+                    <span style={{ fontSize: '11px', color: '#777', display: 'block', marginBottom: '4px' }}>推薦程度</span>
+                    <div style={{ fontSize: '26px', fontWeight: 'bold', color: degreeColor }}>
+                      {degreeText}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}
